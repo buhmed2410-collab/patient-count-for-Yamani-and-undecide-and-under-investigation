@@ -1,0 +1,540 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;direction:rtl;font-family:'Segoe UI',Tahoma,Arial,sans-serif}
+body{background:transparent}
+.db-shell{display:grid;grid-template-columns:200px 1fr;min-height:680px;border-radius:var(--border-radius-lg);overflow:hidden;border:0.5px solid var(--color-border-secondary)}
+.sidebar{background:#042C53;padding:1.25rem 0;display:flex;flex-direction:column}
+.sb-logo{padding:0 1rem 1.1rem;border-bottom:0.5px solid rgba(255,255,255,0.1);margin-bottom:1rem}
+.sb-logo-t{font-size:10px;font-weight:500;color:#B5D4F4;line-height:1.55;letter-spacing:.2px}
+.sb-logo-s{font-size:9px;color:#378ADD;margin-top:3px;line-height:1.4}
+.sb-nav{padding:0 0.75rem;flex:1}
+.sb-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--border-radius-md);color:#B5D4F4;font-size:11px;cursor:pointer;margin-bottom:2px;transition:background .15s;border:none;background:none;width:100%;font-family:inherit;text-align:right}
+.sb-item:hover{background:rgba(55,138,221,0.18)}
+.sb-item.on{background:rgba(55,138,221,0.3);color:#E6F1FB;font-weight:500}
+.sb-item i{font-size:14px;flex-shrink:0}
+.sb-files-area{padding:0.75rem;border-top:0.5px solid rgba(255,255,255,0.1);margin-top:auto}
+.sb-files-title{font-size:9px;color:#378ADD;margin-bottom:6px;letter-spacing:.3px}
+.file-chip{display:flex;align-items:center;justify-content:space-between;padding:5px 7px;border-radius:5px;background:rgba(55,138,221,0.15);margin-bottom:4px;font-size:9.5px;color:#B5D4F4}
+.fc-del{background:none;border:none;color:#378ADD;cursor:pointer;font-size:11px;padding:0 2px;line-height:1}
+.fc-del:hover{color:#E6F1FB}
+.sb-footer{padding:6px 1rem 0;text-align:center;font-size:9px;color:#378ADD;line-height:1.5}
+.main{background:var(--color-background-tertiary,#f5f5f5);display:flex;flex-direction:column;min-height:0}
+.topbar{background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:8px;flex-wrap:wrap}
+.tb-left h1{font-size:12.5px;font-weight:500;color:var(--color-text-primary)}
+.tb-left p{font-size:10px;color:var(--color-text-secondary);margin-top:1px}
+.tb-btns{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.btn-primary{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;background:#185FA5;color:#E6F1FB;border:none;border-radius:var(--border-radius-md);font-size:11px;cursor:pointer;transition:background .15s;font-family:inherit}
+.btn-primary:hover{background:#0e4580}
+.btn-outline{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;background:none;color:var(--color-text-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:11px;cursor:pointer;transition:background .15s;font-family:inherit}
+.btn-outline:hover{background:var(--color-background-secondary)}
+.btn-danger{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;background:none;color:#A32D2D;border:0.5px solid #F09595;border-radius:var(--border-radius-md);font-size:11px;cursor:pointer;font-family:inherit}
+.btn-danger:hover{background:#FCEBEB}
+.content{padding:12px;flex:1;overflow:auto}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:12px}
+.kpi{background:var(--color-background-primary);border-radius:var(--border-radius-md);padding:11px 13px;border:0.5px solid var(--color-border-tertiary);position:relative;overflow:hidden}
+.kpi-stripe{position:absolute;top:0;right:0;width:3px;height:100%}
+.kpi-lbl{font-size:10px;color:var(--color-text-secondary);margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.kpi-lbl i{font-size:13px}
+.kpi-val{font-size:21px;font-weight:500;line-height:1}
+.kpi-sub{font-size:9.5px;color:var(--color-text-tertiary);margin-top:4px}
+.row2{display:grid;grid-template-columns:1.5fr 1fr;gap:10px;margin-bottom:10px}
+.card{background:var(--color-background-primary);border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);padding:11px 13px}
+.card-full{background:var(--color-background-primary);border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);padding:11px 13px;margin-bottom:10px}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.c-title{font-size:10.5px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.35px}
+.leg{display:flex;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--color-text-secondary)}
+.ld{width:8px;height:8px;border-radius:2px;display:inline-block;margin-left:4px;vertical-align:1px;flex-shrink:0}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:10.5px}
+thead th{background:#042C53;color:#B5D4F4;padding:7px 8px;text-align:center;font-weight:500;white-space:nowrap;font-size:10px;border-right:0.5px solid rgba(255,255,255,0.08)}
+thead th.nh{background:#185FA5;color:#E6F1FB}
+thead th.ns{background:#378ADD;color:#E6F1FB;font-size:9px}
+tbody td{padding:5px 8px;text-align:center;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary);border-right:0.5px solid var(--color-border-tertiary)}
+tbody tr:hover td{background:var(--color-background-secondary)}
+.etd{text-align:right!important;padding-right:10px!important;font-size:10px;white-space:nowrap}
+.mtd{font-weight:500;color:#185FA5;vertical-align:top;padding-top:9px!important;border-right:2px solid #185FA5!important;white-space:nowrap;font-size:10px}
+.str td{background:#E6F1FB;font-weight:500;border-top:1px solid #B5D4F4;color:#0C447C}
+.etr td{background:#EAF3DE;font-weight:500;border-top:1px solid #C0DD97;color:#3B6D11}
+.gtr td{background:#042C53;font-weight:500;color:#E6F1FB;border-top:2px solid #185FA5;font-size:11px}
+.empty-s{text-align:center;padding:40px;color:var(--color-text-tertiary);font-size:12px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#042C53;color:#E6F1FB;padding:9px 20px;border-radius:var(--border-radius-md);font-size:12px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+.files-empty{font-size:10px;color:rgba(185,212,244,0.5);text-align:center;padding:6px 0}
+.debug-box{background:#FCEBEB;border:1px solid #F09595;border-radius:6px;padding:8px 12px;font-size:11px;color:#A32D2D;margin-bottom:10px;display:none}
+</style>
+
+<div class="db-shell">
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-t">المديرية العامة للخدمات الصحية</div>
+      <div class="sb-logo-s">دائرة التخطيط والتنظيم الصحي</div>
+      <div class="sb-logo-s" style="margin-top:2px">إدارة المعلومات الصحية</div>
+    </div>
+    <nav class="sb-nav">
+      <button class="sb-item on" onclick="showView('dash',this)"><i class="ti ti-layout-dashboard" aria-hidden="true"></i>لوحة التحكم</button>
+      <button class="sb-item" onclick="showView('table',this)"><i class="ti ti-table" aria-hidden="true"></i>الجدول التفصيلي</button>
+      <button class="sb-item" onclick="showView('charts',this)"><i class="ti ti-chart-bar" aria-hidden="true"></i>الرسوم البيانية</button>
+    </nav>
+    <div class="sb-files-area">
+      <div class="sb-files-title"><i class="ti ti-database" aria-hidden="true" style="font-size:11px;vertical-align:-1px;margin-left:3px"></i>الملفات المحملة</div>
+      <div id="fileChips"><div class="files-empty">لا توجد ملفات</div></div>
+    </div>
+    <div class="sb-footer">محافظة ظفار — سلطنة عُمان</div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="tb-left">
+        <h1><i class="ti ti-heart-rate-monitor" aria-hidden="true" style="font-size:13px;vertical-align:-2px;margin-left:5px;color:#185FA5"></i>إحصائية المرضى اليمنيين وقيد الدراسة والبدون — محافظة ظفار</h1>
+        <p id="fileInfo">ارفع ملف CSV لعرض البيانات</p>
+      </div>
+      <div class="tb-btns">
+        <button class="btn-danger" id="btnClear" onclick="clearAll()" style="display:none"><i class="ti ti-trash" aria-hidden="true"></i>مسح الكل</button>
+        <button class="btn-outline" id="btnExcel" onclick="exportExcel()" style="display:none"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i>تصدير Excel</button>
+        <label class="btn-primary" for="fileIn"><i class="ti ti-upload" aria-hidden="true"></i>رفع ملف</label>
+        <input type="file" id="fileIn" accept=".csv" style="display:none" multiple>
+      </div>
+    </div>
+
+    <div class="content">
+      <div id="debugBox" class="debug-box"></div>
+
+      <div id="view-dash">
+        <div class="kpi-row">
+          <div class="kpi"><div class="kpi-stripe" style="background:#185FA5"></div><div class="kpi-lbl"><i class="ti ti-users" aria-hidden="true" style="color:#185FA5"></i>إجمالي المرضى</div><div class="kpi-val" id="kP" style="color:#185FA5">—</div><div class="kpi-sub" id="kPf">—</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:#1D9E75"></div><div class="kpi-lbl"><i class="ti ti-calendar-stats" aria-hidden="true" style="color:#1D9E75"></i>إجمالي الزيارات</div><div class="kpi-val" id="kV" style="color:#1D9E75">—</div><div class="kpi-sub" id="kVf">—</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:#D85A30"></div><div class="kpi-lbl"><i class="ti ti-building-hospital" aria-hidden="true" style="color:#D85A30"></i>المؤسسات الصحية</div><div class="kpi-val" id="kE" style="color:#D85A30">—</div><div class="kpi-sub">مؤسسة نشطة</div></div>
+          <div class="kpi"><div class="kpi-stripe" style="background:#7F77DD"></div><div class="kpi-lbl"><i class="ti ti-repeat" aria-hidden="true" style="color:#7F77DD"></i>معدل زيارة/مريض</div><div class="kpi-val" id="kR" style="color:#7F77DD">—</div><div class="kpi-sub">متوسط التكرار</div></div>
+        </div>
+        <div class="row2">
+          <div class="card">
+            <div class="card-hdr"><span class="c-title">المرضى والزيارات حسب المؤسسة</span><div class="leg"><span><span class="ld" style="background:#378ADD"></span>مرضى</span><span><span class="ld" style="background:#1D9E75"></span>زيارات</span></div></div>
+            <div style="position:relative;height:260px"><canvas id="cEst" role="img" aria-label="مخطط أعمدة للمؤسسات">بيانات المؤسسات</canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><span class="c-title">توزيع الجنسيات</span></div>
+            <div class="leg" id="legNat" style="margin-bottom:8px"></div>
+            <div style="position:relative;height:210px"><canvas id="cNat" role="img" aria-label="توزيع الجنسيات">توزيع الجنسيات</canvas></div>
+          </div>
+        </div>
+        <div class="card-full">
+          <div class="card-hdr"><span class="c-title">مقارنة المرضى حسب الشهر والجنسية</span><div class="leg" id="legMonth"></div></div>
+          <div style="position:relative;height:195px"><canvas id="cMonth" role="img" aria-label="المرضى الشهريون">البيانات الشهرية</canvas></div>
+        </div>
+      </div>
+
+      <div id="view-table" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px">
+          <span style="font-size:11px;color:var(--color-text-secondary)" id="tblInfo">—</span>
+          <button class="btn-outline" id="btnExcel2" onclick="exportExcel()" style="display:none;font-size:10.5px"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i>تصدير Excel</button>
+        </div>
+        <div class="tbl-wrap"><table id="mainTbl"><tbody><tr><td class="empty-s" colspan="14">ارفع ملف CSV لعرض الجدول</td></tr></tbody></table></div>
+      </div>
+
+      <div id="view-charts" style="display:none">
+        <div class="card-full">
+          <div class="card-hdr"><span class="c-title">المرضى لكل مؤسسة — مفصّل حسب الجنسية</span></div>
+          <div style="position:relative;height:320px"><canvas id="cEF" role="img" aria-label="مفصل المؤسسات">بيانات</canvas></div>
+        </div>
+        <div class="card-full">
+          <div class="card-hdr"><span class="c-title">الزيارات لكل مؤسسة — مفصّل حسب الجنسية</span></div>
+          <div style="position:relative;height:320px"><canvas id="cVF" role="img" aria-label="مفصل الزيارات">بيانات</canvas></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const NAT_COLOR={'UNDECIDED':'#185FA5','UNDER INVESTIGATION':'#1D9E75','YEMENI':'#D85A30'};
+const NAT_AR={'UNDECIDED':'البدون','UNDER INVESTIGATION':'قيد الدراسة','YEMENI':'يمني'};
+const MON_AR=['','يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+const STORE_KEY='hDash_agg_v2';
+const STORE_FILES='hDash_files_v2';
+let CH={}, allAgg=[], loadedFiles=[];
+
+function toast(msg,ms=3000){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),ms);
+}
+function showDebug(msg){
+  const el=document.getElementById('debugBox');
+  el.textContent=msg;el.style.display='block';
+  setTimeout(()=>el.style.display='none',6000);
+}
+
+function saveToStorage(){
+  try{
+    sessionStorage.setItem(STORE_KEY,JSON.stringify(allAgg));
+    sessionStorage.setItem(STORE_FILES,JSON.stringify(loadedFiles.map(f=>({name:f.name,rows:f.rows,agg:f.agg}))));
+  }catch(e){}
+}
+function loadFromStorage(){
+  try{
+    const d=sessionStorage.getItem(STORE_KEY);
+    const f=sessionStorage.getItem(STORE_FILES);
+    if(d){allAgg=JSON.parse(d)||[];}
+    if(f){loadedFiles=JSON.parse(f)||[];}
+  }catch(e){allAgg=[];loadedFiles=[];}
+}
+
+function showView(v,btn){
+  document.querySelectorAll('[id^="view-"]').forEach(el=>el.style.display='none');
+  document.getElementById('view-'+v).style.display='block';
+  document.querySelectorAll('.sb-item').forEach(el=>el.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+}
+
+/* ====== المحلل المُحسَّن: يدعم \r و \r\n و \n ====== */
+function parseCSV(text){
+  /* تطبيع جميع أنواع فواصل الأسطر إلى \n */
+  const normalized = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  const lines = normalized.trim().split('\n');
+  if(lines.length < 2) return [];
+
+  function splitLine(line){
+    const cols=[];let cur='',inQ=false;
+    for(let i=0;i<line.length;i++){
+      const c=line[i];
+      if(c==='"'){inQ=!inQ;}
+      else if(c===','&&!inQ){cols.push(cur.trim());cur='';}
+      else{cur+=c;}
+    }
+    cols.push(cur.trim());
+    return cols;
+  }
+
+  const header=splitLine(lines[0]);
+  if(header.length < 2) return [];
+
+  const rows=[];
+  for(let i=1;i<lines.length;i++){
+    const line=lines[i].trim();
+    if(!line) continue;
+    const vals=splitLine(line);
+    const obj={};
+    header.forEach((h,j)=>obj[h.trim()]=(vals[j]||'').trim());
+    rows.push(obj);
+  }
+  return rows;
+}
+
+function aggregateRows(rows){
+  const map={};
+  rows.forEach(r=>{
+    const mo=(r['Month']||r['month']||'').toString().trim();
+    const yr=(r['Year']||r['year']||'').toString().trim();
+    const est=(r['ESTABLISHMENT']||'').trim();
+    const nat=(r['NATIONALITY']||'').trim();
+    const pat=parseInt(r['count patient'])||0;
+    const vis=parseInt(r['Total visit'])||0;
+    if(!est||!nat||!mo||!yr) return;
+    const key=`${mo}|||${yr}|||${est}|||${nat}`;
+    if(!map[key])map[key]={Month:mo,Year:yr,ESTABLISHMENT:est,NATIONALITY:nat,patients:0,visits:0};
+    map[key].patients+=pat;
+    map[key].visits+=vis;
+  });
+  return Object.values(map);
+}
+
+function mergeAgg(existing,incoming){
+  const map={};
+  [...existing,...incoming].forEach(r=>{
+    const key=`${r.Month}|||${r.Year}|||${r.ESTABLISHMENT}|||${r.NATIONALITY}`;
+    if(!map[key])map[key]={...r,patients:0,visits:0};
+    map[key].patients+=r.patients;
+    map[key].visits+=r.visits;
+  });
+  return Object.values(map);
+}
+
+function uniq(agg,f){return[...new Set(agg.map(r=>r[f]))].filter(Boolean).sort();}
+function getMonths(agg){
+  return[...new Set(agg.map(r=>r.Month+'_'+r.Year))].filter(Boolean).sort((a,b)=>{
+    const[am,ay]=a.split('_').map(Number),[bm,by]=b.split('_').map(Number);
+    return ay!==by?ay-by:am-bm;
+  });
+}
+function sum(agg,f){
+  return agg.filter(r=>Object.entries(f).every(([k,v])=>String(r[k])==String(v)))
+    .reduce((a,r)=>({patients:a.patients+r.patients,visits:a.visits+r.visits}),{patients:0,visits:0});
+}
+function fmt(n){return n===0?'—':n.toLocaleString('ar-SA');}
+function kill(id){if(CH[id]){CH[id].destroy();delete CH[id];}}
+const CD={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},animation:{duration:500}};
+
+function updateFileChips(){
+  const el=document.getElementById('fileChips');
+  if(!loadedFiles.length){el.innerHTML='<div class="files-empty">لا توجد ملفات</div>';return;}
+  el.innerHTML=loadedFiles.map((f,i)=>`
+    <div class="file-chip" title="${f.name}">
+      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:108px">
+        <i class="ti ti-file-text" aria-hidden="true" style="font-size:11px;margin-left:3px"></i>${f.name.length>14?f.name.slice(0,13)+'…':f.name}
+      </span>
+      <span style="color:rgba(185,212,244,0.55);font-size:9px;margin:0 3px">${f.rows.toLocaleString('ar-SA')}</span>
+      <button class="fc-del" onclick="removeFile(${i})" aria-label="حذف الملف"><i class="ti ti-x" aria-hidden="true"></i></button>
+    </div>`).join('');
+}
+
+function removeFile(i){
+  const fname=loadedFiles[i].name;
+  loadedFiles.splice(i,1);
+  allAgg=[];
+  loadedFiles.forEach(f=>{allAgg=mergeAgg(allAgg,f.agg);});
+  updateFileChips();saveToStorage();
+  if(allAgg.length){render();}else{clearUI();}
+  toast('تم حذف: '+fname);
+}
+
+function clearAll(){
+  if(!confirm('هل تريد مسح جميع البيانات والملفات؟'))return;
+  allAgg=[];loadedFiles=[];
+  saveToStorage();updateFileChips();clearUI();
+  toast('تم مسح جميع البيانات');
+}
+
+function clearUI(){
+  ['kP','kV','kE','kR'].forEach(id=>document.getElementById(id).textContent='—');
+  ['kPf','kVf'].forEach(id=>document.getElementById(id).textContent='—');
+  document.getElementById('fileInfo').textContent='ارفع ملف CSV لعرض البيانات';
+  document.getElementById('tblInfo').textContent='—';
+  ['est','nat','month','estFull','visitsFull'].forEach(kill);
+  document.getElementById('mainTbl').innerHTML='<tbody><tr><td class="empty-s" colspan="14">ارفع ملف CSV لعرض الجدول</td></tr></tbody>';
+  ['btnClear','btnExcel','btnExcel2'].forEach(id=>document.getElementById(id).style.display='none');
+}
+
+function render(){
+  const agg=allAgg;if(!agg.length)return;
+  const nats=uniq(agg,'NATIONALITY'),ests=uniq(agg,'ESTABLISHMENT'),months=getMonths(agg);
+  const tot=sum(agg,{});
+  const mLabels=months.map(m=>{const[mo,yr]=m.split('_');return(MON_AR[+mo]||mo)+' '+yr;});
+  const natColors=nats.map(n=>NAT_COLOR[n]||'#7F77DD');
+  const totalFiles=loadedFiles.length,totalRecs=loadedFiles.reduce((s,f)=>s+f.rows,0);
+
+  document.getElementById('kP').textContent=tot.patients.toLocaleString('ar-SA');
+  document.getElementById('kV').textContent=tot.visits.toLocaleString('ar-SA');
+  document.getElementById('kE').textContent=ests.length;
+  document.getElementById('kR').textContent=tot.patients>0?(tot.visits/tot.patients).toFixed(2):'—';
+  document.getElementById('kPf').textContent=mLabels.join(' — ')||'—';
+  document.getElementById('kVf').textContent=totalRecs.toLocaleString('ar-SA')+' سجل من '+totalFiles+' ملف';
+  document.getElementById('fileInfo').textContent=totalFiles+' ملف — '+totalRecs.toLocaleString('ar-SA')+' سجل — '+months.length+' شهر';
+  document.getElementById('tblInfo').textContent=totalFiles+' ملف | '+months.length+' شهر | '+ests.length+' مؤسسة';
+  ['btnClear','btnExcel','btnExcel2'].forEach(id=>document.getElementById(id).style.display='inline-flex');
+
+  document.getElementById('legNat').innerHTML=nats.map((n,i)=>
+    `<span style="display:flex;align-items:center;gap:4px"><span class="ld" style="background:${natColors[i]}"></span>${NAT_AR[n]||n}: ${sum(agg,{NATIONALITY:n}).patients.toLocaleString('ar-SA')}</span>`).join('');
+  document.getElementById('legMonth').innerHTML=nats.map((n,i)=>
+    `<span style="display:flex;align-items:center;gap:4px"><span class="ld" style="background:${natColors[i]}"></span>${NAT_AR[n]||n}</span>`).join('');
+
+  const estShort=ests.map(e=>e.replace(' HEALTH CENTER','').replace(' HOSPITAL',''));
+  document.getElementById('cEst').parentElement.style.height=Math.max(260,ests.length*38+80)+'px';
+
+  kill('est');
+  CH['est']=new Chart(document.getElementById('cEst'),{type:'bar',data:{labels:estShort,datasets:[
+    {label:'مرضى',data:ests.map(e=>sum(agg,{ESTABLISHMENT:e}).patients),backgroundColor:'#378ADD',borderRadius:4,barPercentage:0.55},
+    {label:'زيارات',data:ests.map(e=>sum(agg,{ESTABLISHMENT:e}).visits),backgroundColor:'#1D9E75',borderRadius:4,barPercentage:0.55}
+  ]},options:{...CD,indexAxis:'y',scales:{x:{grid:{color:'rgba(128,128,128,0.07)'},ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+  kill('nat');
+  CH['nat']=new Chart(document.getElementById('cNat'),{type:'doughnut',data:{
+    labels:nats.map(n=>NAT_AR[n]||n),
+    datasets:[{data:nats.map(n=>sum(agg,{NATIONALITY:n}).patients),backgroundColor:natColors,borderWidth:3,borderColor:'var(--color-background-primary)',hoverOffset:5}]},
+    options:{...CD,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed.toLocaleString('ar-SA')}`}}}}});
+
+  kill('month');
+  CH['month']=new Chart(document.getElementById('cMonth'),{type:'bar',data:{labels:mLabels,
+    datasets:nats.map((n,i)=>({label:NAT_AR[n]||n,
+      data:months.map(m=>{const[mo,yr]=m.split('_');return sum(agg,{NATIONALITY:n,Month:mo,Year:yr}).patients;}),
+      backgroundColor:natColors[i],borderRadius:4,barPercentage:0.65}))},
+    options:{...CD,scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'rgba(128,128,128,0.07)'},ticks:{font:{size:10}}}}}});
+
+  const efH=Math.max(300,ests.length*52+80);
+  ['cEF','cVF'].forEach(id=>document.getElementById(id).parentElement.style.height=efH+'px');
+
+  kill('estFull');
+  CH['estFull']=new Chart(document.getElementById('cEF'),{type:'bar',data:{labels:estShort,
+    datasets:nats.map((n,i)=>({label:NAT_AR[n]||n,data:ests.map(e=>sum(agg,{ESTABLISHMENT:e,NATIONALITY:n}).patients),backgroundColor:natColors[i],borderRadius:3,barPercentage:0.7}))},
+    options:{...CD,indexAxis:'y',plugins:{legend:{display:true,position:'top',labels:{font:{size:10},boxWidth:10,padding:10}}},
+      scales:{x:{grid:{color:'rgba(128,128,128,0.07)'},ticks:{font:{size:9}}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+  kill('visitsFull');
+  CH['visitsFull']=new Chart(document.getElementById('cVF'),{type:'bar',data:{labels:estShort,
+    datasets:nats.map((n,i)=>({label:NAT_AR[n]||n,data:ests.map(e=>sum(agg,{ESTABLISHMENT:e,NATIONALITY:n}).visits),backgroundColor:natColors[i],borderRadius:3,barPercentage:0.7}))},
+    options:{...CD,indexAxis:'y',plugins:{legend:{display:true,position:'top',labels:{font:{size:10},boxWidth:10,padding:10}}},
+      scales:{x:{grid:{color:'rgba(128,128,128,0.07)'},ticks:{font:{size:9}}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+  buildTable(agg,nats,ests,months,mLabels);
+}
+
+function buildTable(agg,nats,ests,months,mLabels){
+  const tbl=document.getElementById('mainTbl');tbl.innerHTML='';
+  const thead=tbl.createTHead();
+  function th(row,txt,rs,cs,cls=''){
+    const el=document.createElement('th');el.textContent=txt;
+    if(rs>1)el.rowSpan=rs;if(cs>1)el.colSpan=cs;if(cls)el.className=cls;
+    row.appendChild(el);return el;
+  }
+  const r0=thead.insertRow(),r1=thead.insertRow();
+  th(r0,'الشهر',2,1);th(r0,'المؤسسة الصحية',2,1);
+  nats.forEach(n=>th(r0,NAT_AR[n]||n,1,2,'nh'));
+  th(r0,'الإجمالي',1,2,'nh');
+  nats.forEach(()=>{th(r1,'مرضى',1,1,'ns');th(r1,'زيارات',1,1,'ns');});
+  th(r1,'مرضى',1,1,'ns');th(r1,'زيارات',1,1,'ns');
+
+  const tb=tbl.createTBody();
+  const estTotals={};
+  ests.forEach(est=>{estTotals[est]={patients:0,visits:0};nats.forEach(n=>{estTotals[est][n]={p:0,v:0};});});
+  let gP=0,gV=0;const gN={};nats.forEach(n=>gN[n]={p:0,v:0});
+
+  months.forEach((m,mi)=>{
+    const[mo,yr]=m.split('_');let mP=0,mV=0;const mN={};nats.forEach(n=>mN[n]={p:0,v:0});
+    ests.forEach((est,ei)=>{
+      const tr=tb.insertRow();
+      if(ei===0){const td=tr.insertCell();td.rowSpan=ests.length+1;td.textContent=mLabels[mi];td.className='mtd';}
+      const te=tr.insertCell();te.textContent=est;te.className='etd';
+      let rP=0,rV=0;
+      nats.forEach(n=>{
+        const v=sum(agg,{ESTABLISHMENT:est,NATIONALITY:n,Month:mo,Year:yr});
+        tr.insertCell().textContent=fmt(v.patients);tr.insertCell().textContent=fmt(v.visits);
+        mN[n].p+=v.patients;mN[n].v+=v.visits;gN[n].p+=v.patients;gN[n].v+=v.visits;
+        estTotals[est][n].p+=v.patients;estTotals[est][n].v+=v.visits;
+        estTotals[est].patients+=v.patients;estTotals[est].visits+=v.visits;
+        rP+=v.patients;rV+=v.visits;
+      });
+      tr.insertCell().textContent=fmt(rP);tr.insertCell().textContent=fmt(rV);mP+=rP;mV+=rV;
+    });
+    const sr=tb.insertRow();sr.className='str';
+    const sl=sr.insertCell();sl.textContent='مجموع '+mLabels[mi];sl.colSpan=2;sl.style.textAlign='right';sl.style.paddingRight='10px';
+    nats.forEach(n=>{sr.insertCell().textContent=mN[n].p.toLocaleString('ar-SA');sr.insertCell().textContent=mN[n].v.toLocaleString('ar-SA');});
+    sr.insertCell().textContent=mP.toLocaleString('ar-SA');sr.insertCell().textContent=mV.toLocaleString('ar-SA');
+    gP+=mP;gV+=mV;
+  });
+
+  const sepRow=tb.insertRow();
+  const sepTd=sepRow.insertCell();
+  sepTd.colSpan=2+nats.length*2+2;
+  sepTd.textContent='إجمالي كل مؤسسة عبر جميع الأشهر';
+  sepTd.style.cssText='background:#185FA5;color:#E6F1FB;font-weight:500;font-size:10.5px;padding:7px 10px;text-align:right;border-top:2px solid #042C53';
+
+  ests.forEach(est=>{
+    const er=tb.insertRow();er.className='etr';
+    const el=er.insertCell();el.textContent=est;el.colSpan=2;el.className='etd';el.style.fontWeight='500';
+    nats.forEach(n=>{er.insertCell().textContent=estTotals[est][n].p.toLocaleString('ar-SA');er.insertCell().textContent=estTotals[est][n].v.toLocaleString('ar-SA');});
+    er.insertCell().textContent=estTotals[est].patients.toLocaleString('ar-SA');er.insertCell().textContent=estTotals[est].visits.toLocaleString('ar-SA');
+  });
+
+  const gr=tb.insertRow();gr.className='gtr';
+  const gl=gr.insertCell();gl.textContent='المجموع الكلي';gl.colSpan=2;gl.style.textAlign='right';gl.style.paddingRight='10px';
+  nats.forEach(n=>{gr.insertCell().textContent=gN[n].p.toLocaleString('ar-SA');gr.insertCell().textContent=gN[n].v.toLocaleString('ar-SA');});
+  gr.insertCell().textContent=gP.toLocaleString('ar-SA');gr.insertCell().textContent=gV.toLocaleString('ar-SA');
+}
+
+function exportExcel(){
+  if(!allAgg.length){toast('لا توجد بيانات للتصدير');return;}
+  const nats=uniq(allAgg,'NATIONALITY'),ests=uniq(allAgg,'ESTABLISHMENT'),months=getMonths(allAgg);
+  const mLabels=months.map(m=>{const[mo,yr]=m.split('_');return(MON_AR[+mo]||mo)+' '+yr;});
+  const wb=XLSX.utils.book_new();
+  const sd=[];
+  const h1=['الشهر','المؤسسة الصحية'];nats.forEach(n=>{h1.push(NAT_AR[n]||n,'');});h1.push('الإجمالي','');sd.push(h1);
+  const h2=['',''];nats.forEach(()=>{h2.push('مرضى','زيارات');});h2.push('مرضى','زيارات');sd.push(h2);
+  const estTotals={};ests.forEach(est=>{estTotals[est]={patients:0,visits:0};nats.forEach(n=>{estTotals[est][n]={p:0,v:0};});});
+  let gP=0,gV=0;const gN={};nats.forEach(n=>gN[n]={p:0,v:0});
+  months.forEach((m,mi)=>{
+    const[mo,yr]=m.split('_');let mP=0,mV=0;const mN={};nats.forEach(n=>mN[n]={p:0,v:0});
+    ests.forEach((est,ei)=>{
+      const row=[ei===0?mLabels[mi]:'',est];let rP=0,rV=0;
+      nats.forEach(n=>{
+        const v=sum(allAgg,{ESTABLISHMENT:est,NATIONALITY:n,Month:mo,Year:yr});
+        row.push(v.patients||0,v.visits||0);
+        mN[n].p+=v.patients;mN[n].v+=v.visits;gN[n].p+=v.patients;gN[n].v+=v.visits;
+        estTotals[est][n].p+=v.patients;estTotals[est][n].v+=v.visits;estTotals[est].patients+=v.patients;estTotals[est].visits+=v.visits;
+        rP+=v.patients;rV+=v.visits;
+      });
+      row.push(rP,rV);sd.push(row);mP+=rP;mV+=rV;
+    });
+    const sr=['مجموع '+mLabels[mi],''];nats.forEach(n=>{sr.push(mN[n].p,mN[n].v);});sr.push(mP,mV);sd.push(sr);
+    gP+=mP;gV+=mV;
+  });
+  sd.push(['إجمالي المؤسسات','']);
+  ests.forEach(est=>{
+    const er=[est,''];nats.forEach(n=>{er.push(estTotals[est][n].p,estTotals[est][n].v);});er.push(estTotals[est].patients,estTotals[est].visits);sd.push(er);
+  });
+  const grow=['المجموع الكلي',''];nats.forEach(n=>{grow.push(gN[n].p,gN[n].v);});grow.push(gP,gV);sd.push(grow);
+  const ws=XLSX.utils.aoa_to_sheet(sd);
+  ws['!cols']=[{wch:16},{wch:28},...nats.flatMap(()=>[{wch:10},{wch:10}]),{wch:10},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws,'إحصائية المرضى');
+  const raw=[['الشهر','السنة','المؤسسة','الجنسية','عدد المرضى','عدد الزيارات']];
+  allAgg.forEach(r=>{raw.push([MON_AR[+r.Month]||r.Month,r.Year,r.ESTABLISHMENT,NAT_AR[r.NATIONALITY]||r.NATIONALITY,r.patients,r.visits]);});
+  const ws2=XLSX.utils.aoa_to_sheet(raw);
+  ws2['!cols']=[{wch:12},{wch:8},{wch:28},{wch:16},{wch:14},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws2,'البيانات الخام');
+  const t=new Date();
+  XLSX.writeFile(wb,`إحصائية_ظفار_${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}.xlsx`);
+  toast('تم تصدير الملف بنجاح');
+}
+
+/* ====== معالج رفع الملفات ====== */
+document.getElementById('fileIn').addEventListener('change',function(e){
+  const files=Array.from(e.target.files);
+  if(!files.length)return;
+  let processed=0;
+
+  function done(){
+    processed++;
+    if(processed===files.length){
+      saveToStorage();updateFileChips();
+      if(allAgg.length)render();
+    }
+  }
+
+  files.forEach(file=>{
+    if(loadedFiles.find(f=>f.name===file.name)){
+      toast('الملف موجود مسبقاً: '+file.name);
+      done();return;
+    }
+    const reader=new FileReader();
+    reader.onload=function(ev){
+      try{
+        const text=ev.target.result;
+        const rows=parseCSV(text);
+        if(!rows.length){
+          showDebug('الملف فارغ أو تنسيق غير معروف: '+file.name);
+          done();return;
+        }
+        /* تحقق من وجود الأعمدة المطلوبة */
+        const sample=rows[0];
+        const hasPatient='count patient' in sample;
+        const hasVisit='Total visit' in sample;
+        const hasEst='ESTABLISHMENT' in sample;
+        const hasNat='NATIONALITY' in sample;
+        if(!hasPatient||!hasVisit||!hasEst||!hasNat){
+          showDebug('الأعمدة المتوقعة غير موجودة. الأعمدة الموجودة: '+Object.keys(sample).join(', '));
+          done();return;
+        }
+        const agg=aggregateRows(rows);
+        loadedFiles.push({name:file.name,rows:rows.length,agg});
+        allAgg=mergeAgg(allAgg,agg);
+        toast('✓ تم إضافة: '+file.name+' ('+rows.length.toLocaleString('ar-SA')+' سجل)');
+      }catch(err){
+        showDebug('خطأ في معالجة الملف '+file.name+': '+err.message);
+      }
+      done();
+    };
+    reader.onerror=function(){
+      showDebug('فشل قراءة الملف: '+file.name);
+      done();
+    };
+    /* قراءة بترميز UTF-8 أولاً */
+    reader.readAsText(file,'UTF-8');
+  });
+  e.target.value='';
+});
+
+/* تحميل البيانات المحفوظة عند البدء */
+loadFromStorage();
+if(allAgg.length){updateFileChips();render();}
+</script>
